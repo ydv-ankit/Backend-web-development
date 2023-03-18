@@ -2,8 +2,7 @@ const express =  require('express')
 const app = express()
 
 app.get("/", (req, res)=>{
-    res.writeHead(200)
-    res.end("Welcome to my server app")
+    res.send("Welcome to my server app")
 })
 
 app.listen(8080, ()=>{ 
