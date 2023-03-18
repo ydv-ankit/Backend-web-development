@@ -4,17 +4,25 @@ const app = express()
 app.use(express.json())
 
 const userRouter = express.Router();
+const authRouter = express.Router();
+
+// base route
 app.use("/user", userRouter)
+app.use("/auth", authRouter)
 
 // miniapp
 userRouter
-.route("/")
-.get(getUser)
-.post(postUser)
-.patch(updateUser)
-.delete(deleteUser);
-
+    .route("/")
+    .get(getUser)
+    .post(postUser)
+    .patch(updateUser)
+    .delete(deleteUser);
 userRouter.route("/:id").get(getUserById)
+
+authRouter
+    .route("/signup")
+    .get(getSignUp)
+    .post(postSignUp)
 
 let users = [
     {
@@ -81,4 +89,17 @@ function getUserById(req, res){
         message:"request recieved",
         data:obj
     })
+}
+
+function getSignUp(req, res){
+    res.sendFile(__dirname + "/public/signup.html")
+}
+
+function postSignUp(req, res){
+    let obj = req.body;
+    console.log("backend -> " , obj)
+    res.json({
+        message: "user signed up",
+        data: obj
+    });
 }
