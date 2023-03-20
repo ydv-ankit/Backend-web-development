@@ -96,8 +96,9 @@ function getUserById(req, res){
     })
 }
 
-function getSignUp(req, res){
+function getSignUp(req, res, next){
     console.log("getSignUp called")
+    next()
     res.sendFile(__dirname + "/public/signup.html")
 }
 
