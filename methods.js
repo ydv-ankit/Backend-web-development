@@ -21,7 +21,7 @@ userRouter.route("/:id").get(getUserById)
 
 authRouter
     .route("/signup")
-    .get(getSignUp)
+    .get(middleware, getSignUp)
     .post(postSignUp)
 
 let users = [
@@ -43,6 +43,12 @@ let users = [
 app.listen(8080, ()=>{ 
     console.log("server live at http://127.0.0.1:8080")
 })
+
+// middleware function
+function middleware(req, res, next){
+    console.log("middleware encountered")
+    next()
+}
 
 function getUser(req, res){
     console.log(req.query)  // query
@@ -91,6 +97,7 @@ function getUserById(req, res){
 }
 
 function getSignUp(req, res){
+    console.log("getSignUp called")
     res.sendFile(__dirname + "/public/signup.html")
 }
 
