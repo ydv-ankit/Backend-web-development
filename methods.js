@@ -1,5 +1,6 @@
 const express =  require('express')
 const app = express()
+const mongoose = require('mongoose')
 // middleware functions, change post data into json format
 app.use(express.json())
 
@@ -13,7 +14,7 @@ app.use("/auth", authRouter)
 // miniapp
 userRouter
     .route("/")
-    .get(getUser)
+    .get(getUsers)
     .post(postUser)
     .patch(updateUser)
     .delete(deleteUser);
@@ -21,7 +22,7 @@ userRouter.route("/:id").get(getUserById)
 
 authRouter
     .route("/signup")
-    .get(middleware, getSignUp)
+    .get(getSignUp)
     .post(postSignUp)
 
 let users = [
@@ -50,9 +51,14 @@ function middleware(req, res, next){
     next()
 }
 
-function getUser(req, res){
-    console.log(req.query)  // query
-    res.json(users);
+async function getUsers(req, res){
+    // console.log(req.query)  // query
+    let allUsers = await userModel.find()
+
+    res.json({
+        message : "list of all users",
+        users : allUsers 
+    });
 }
 
 function postUser(req, res){
@@ -96,17 +102,80 @@ function getUserById(req, res){
     })
 }
 
-function getSignUp(req, res, next){
-    console.log("getSignUp called")
-    next()
+function getSignUp(req, res){
     res.sendFile(__dirname + "/public/signup.html")
 }
 
-function postSignUp(req, res){
+async function postSignUp(req, res){
     let obj = req.body;
-    console.log("backend -> " , obj)
+    data = await userModel.insertMany(obj);
+    console.log("backend -> " , data)
     res.json({
         message: "user signed up",
         data: obj
     });
 }
+
+const db_link = "mongodb://127.0.0.1:27017/test"
+
+mongoose.connect(db_link)
+.then(function(db){
+    console.log("databse connected");
+})
+.catch(function(err){
+    console.log("error occured");
+})
+
+// user schema for mongoDB
+const userSchema = mongoose.Schema({
+    name:{
+        type: String,
+        required: true
+    },
+    email:{
+        type: String,
+        required: true,
+        unique: true
+    },
+    password:{
+        type: String,
+        required: true,
+        minlength: 8
+    },
+    confirmPassword:{
+        type: String,
+        required: true,
+        minlength: 8
+    }
+});
+
+userSchema.pre('save', function(){
+    console.log("before saving to database")
+})
+
+userSchema.post('save', function(doc){
+    console.log("after saving to database")
+})
+
+// model -> what purpose schema is used
+const userModel = mongoose.model('userModel', userSchema);
+
+// (async function createUser(){
+//     let user = [
+//         {
+//             name: "Ankit",
+//             email: 'ankt@gmail.com',
+//             password: "Ankit123",
+//             confirmPassword: "Ankit123"
+//         },
+//         {
+//             name: "Ankit",
+//             email: 'ankitydv@gmail.com',
+//             password: "Ankit123",
+//             confirmPassword: "Ankit123"
+//         }
+//     ];
+//     let data = 'done'
+//     data = await userModel.create(user);
+//     console.log(data)
+// })();
